@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,6 +14,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        AtomicInteger check = new AtomicInteger(0);
 
         TextView textView = findViewById(R.id.result_view);
 
@@ -46,12 +48,48 @@ public class MainActivity extends AppCompatActivity {
         b7.setOnClickListener(e -> setNumber(textView,'7'));
         b8.setOnClickListener(e -> setNumber(textView,'8'));
         b9.setOnClickListener(e -> setNumber(textView,'9'));
-        bminus.setOnClickListener(e -> setNumber(textView,'-'));
-        bplus.setOnClickListener(e -> setNumber(textView,'+'));
-        bmul.setOnClickListener(e -> setNumber(textView,'*'));
-        bdiv.setOnClickListener(e -> setNumber(textView,'/'));
+        bminus.setOnClickListener(e -> {setNumber(textView,'-');
+        if (check.get() == 0){
+            check.getAndIncrement();
+        }else {
+            check.set(0);
+            String s = textView.getText().toString();
+            textView.setText(getEquation(s));
+        }
+        });
+        bplus.setOnClickListener(e -> {setNumber(textView,'+');
+            if (check.get() == 0){
+                check.getAndIncrement();
+            }else {
+                check.set(0);
+                String s = textView.getText().toString();
+                textView.setText(getEquation(s));
+            }});
+        bmul.setOnClickListener(e -> {setNumber(textView,'*');
+            if (check.get() == 0){
+                check.getAndIncrement();
+            }else {
+                check.set(0);
+                String s = textView.getText().toString();
+                textView.setText(getEquation(s));
+            }
+        });
+        bdiv.setOnClickListener(e -> {setNumber(textView,'/');
+            if (check.get() == 0){
+                check.getAndIncrement();
+            }else {
+                check.set(0);
+                String s = textView.getText().toString();
+                textView.setText(getEquation(s));
+            }});
         bdot.setOnClickListener(e -> setNumber(textView,'.'));
-        beq.setOnClickListener(e -> setNumber(textView,'='));
+        beq.setOnClickListener(e -> {setNumber(textView,'=');
+        if(check.get() != 0){
+            check.set(0);
+            String s = textView.getText().toString();
+            textView.setText(getEquation(s));
+        }
+        });
         clear.setOnClickListener(e -> textView.setText(""));
         back.setOnClickListener(e -> {
             char [] ass = textView.getText().toString().toCharArray();
@@ -68,4 +106,72 @@ public class MainActivity extends AppCompatActivity {
         String b = a.trim();
         textView.append(b);
     }
+
+    private String plusChanger(String s){
+        char [] c = s.toCharArray();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (char c1 : c) {
+            if (c1=='+' || c1=='*'){
+                stringBuilder.append("#");
+            }else {
+                stringBuilder.append(c1);
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private String getEquation(String source){
+        String finalResult = "";
+
+        char symbol = '-';
+        char [] chars = source.toCharArray();
+
+        for (char aChar : chars) {
+            if (aChar == '-'){
+                symbol = '-';
+            }else if (aChar == '+'){
+                symbol = '+';
+            }else if (aChar == '*'){
+                symbol = '*';
+            }else if (aChar == '/'){
+                symbol = '/';
+            }
+        }
+
+        String s = equalsRemover(source);
+
+        if(symbol == '-'){
+            String [] strings = s.split("-");
+            finalResult = (Double.parseDouble(strings[0]) - Double.parseDouble(strings[1])) + "";
+        }else if (symbol == '+'){
+            String [] strings = plusChanger(s).split("#");
+            finalResult = (Double.parseDouble(strings[0]) + Double.parseDouble(strings[1])) + "";
+        }else if(symbol == '*'){
+            String [] strings = plusChanger(s).split("#");
+            finalResult = (Double.parseDouble(strings[0]) * Double.parseDouble(strings[1])) + "";
+        }else if (symbol == '/'){
+            String [] strings = s.split("/");
+            double number1 = Double.parseDouble(strings[0]);
+            double number2 = Double.parseDouble(strings[1]);
+            if (number2 == 0){
+                finalResult = "Nie można dzielić przez zero";
+            }else {
+                finalResult = (number1 / number2) + "";
+            }
+        }
+        return finalResult;
+    }
+
+    private String equalsRemover(String s){
+        char [] c = s.toCharArray();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (char c1 : c) {
+            if (c1 != '='){
+                stringBuilder.append(c1);
+            }
+        }
+        return stringBuilder.toString();
+    }
+
 }
