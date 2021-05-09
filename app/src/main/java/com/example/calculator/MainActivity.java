@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
         Button bmul = findViewById(R.id.button_multipy);
         Button bdot = findViewById(R.id.button_dot);
         Button beq = findViewById(R.id.button_equal);
+        Button clear = findViewById(R.id.clear);
+        Button back = findViewById(R.id.backspace);
 
         b0.setOnClickListener(e -> setNumber(textView,'0'));
         b1.setOnClickListener(e -> setNumber(textView,'1'));
@@ -50,6 +52,15 @@ public class MainActivity extends AppCompatActivity {
         bdiv.setOnClickListener(e -> setNumber(textView,'/'));
         bdot.setOnClickListener(e -> setNumber(textView,'.'));
         beq.setOnClickListener(e -> setNumber(textView,'='));
+        clear.setOnClickListener(e -> textView.setText(""));
+        back.setOnClickListener(e -> {
+            char [] ass = textView.getText().toString().toCharArray();
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < ass.length - 1; i++) {
+                stringBuilder.append(ass[i]);
+            }
+            textView.setText(stringBuilder.toString());
+        });
     }
 
     private void setNumber(TextView textView,char c){
